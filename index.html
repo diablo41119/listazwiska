@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rejestracja Imion</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            color: #fff; /* White text */
+            margin: 0;
+            padding: 0;
+            background-image: url('tlo.jpg'); /* Background image */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* Content Box */
+        .content {
+            background: rgba(0, 0, 0, 0.7); /* Dark overlay for readability */
+            border-radius: 10px;
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #ffdd57; /* Yellow for emphasis */
+        }
+
+        p {
+            font-size: 1.2rem;
+        }
+
+        input, button {
+            padding: 10px;
+            margin: 10px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        input {
+            width: 80%;
+        }
+
+        button {
+            background-color: #ffdd57;
+            color: #333;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #f39c12;
+        }
+
+        .status {
+            font-size: 1.1rem;
+            margin-top: 10px;
+        }
+
+        .taken {
+            color: red;
+        }
+
+        .available {
+            color: lightgreen;
+        }
+
+        /* Reset Section */
+        #resetSection {
+            margin-top: 20px;
+        }
+
+        #summary {
+            text-align: left;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1>Rejestracja Imion</h1>
+
+        <!-- Użytkownik -->
+        <p>Podaj swoje imię, aby zacząć rejestrację:</p>
+        <input type="text" id="userNameInput" placeholder="Twoje imię tutaj">
+        <button onclick="setUserName()">Zatwierdź</button>
+        <p id="userStatus" class="status"></p>
+
+        <!-- Rejestracja Imion -->
+        <div id="nameInputSection" style="display:none;">
+            <p>Wpisz imię, aby sprawdzić, czy jest dostępne:</p>
+            <input type="text" id="nameInput" placeholder="Wpisz imię">
+            <button onclick="checkName()">Sprawdź</button>
+            <p id="status" class="status"></p>
+            <button onclick="showSummary()">📋 Pokaż podsumowanie</button>
+        </div>
+
+        <!-- Podsumowanie -->
+        <div id="summary" style="display:none;">
+            <h3>Podsumowanie</h3>
+            <ul id="summaryList"></ul>
+        </div>
+
+        <!-- Reset Sekcja -->
+        <div id="resetSection">
+            <h3>Resetowanie</h3>
+            <p>Podaj hasło, aby zresetować wszystkie imiona:</p>
+            <input type="password" id="resetPassword" placeholder="Hasło">
+            <button onclick="resetNames()">Resetuj</button>
+            <p id="resetStatus" class="status"></p>
+        </div>
+    </div>
+
+    <script>
+        const registeredNames = [];
+        const userRegistry = {};
+        let currentUser = null;
+
+        function setUserName() {
+            const userInput = document.getElementById('userNameInput').value.trim();
+            const userStatus = document.getElementById('userStatus');
+
+            if (userInput === "") {
+                userStatus.innerHTML = "Proszę podaj swoje imię.";
+                userStatus.className = "taken";
+                return;
+            }
+
+            currentUser = userInput.toLowerCase();
+            userStatus.innerHTML = `Witaj, ${userInput}! Możesz teraz rejestrować imiona.`;
+            userStatus.className = "available";
+            document.getElementById('nameInputSection').style.display = "block";
+        }
+
+        function checkName() {
+            const name = document.getElementById('nameInput').value.trim();
+            const status = document.getElementById('status');
+
+            if (!currentUser) {
+                status.innerHTML = "Najpierw podaj swoje imię.";
+                status.className = "taken";
+                return;
+            }
+
+            if (name === "") {
+                status.innerHTML = "Proszę podaj imię.";
+                status.className = "taken";
+                return;
+            }
+
+            if (registeredNames.includes(name.toLowerCase())) {
+                status.innerHTML = `Imię "${name}" jest już zajęte!`;
+                status.className = "taken";
+            } else {
+                registeredNames.push(name.toLowerCase());
+                userRegistry[currentUser] = (userRegistry[currentUser] || 0) + 1;
+
+                status.innerHTML = `Imię "${name}" jest dostępne i zostało zarejestrowane!`;
+                status.className = "available";
+                document.getElementById('nameInput').value = "";
+            }
+        }
+
+        function showSummary() {
+            const summary = document.getElementById('summary');
+            const summaryList = document.getElementById('summaryList');
+
+            summaryList.innerHTML = "";
+            for (const [user, count] of Object.entries(userRegistry)) {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${user}: ${count} imion`;
+                summaryList.appendChild(listItem);
+            }
+            summary.style.display = "block";
+        }
+
+        function resetNames() {
+            const password = document.getElementById('resetPassword').value;
+            const resetStatus = document.getElementById('resetStatus');
+
+            if (password === "mamamikiego") {
+                registeredNames.length = 0;
+                for (let user in userRegistry) delete userRegistry[user];
+                currentUser = null;
+
+                resetStatus.innerHTML = "Wszystkie imiona zostały zresetowane!";
+                resetStatus.className = "available";
+                document.getElementById('resetPassword').value = "";
+                document.getElementById('nameInputSection').style.display = "none";
+                document.getElementById('summary').style.display = "none";
+            } else {
+                resetStatus.innerHTML = "Błędne hasło. Spróbuj ponownie.";
+                resetStatus.className = "taken";
+            }
+        }
+    </script>
+</body>
+</html>
