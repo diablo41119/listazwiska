@@ -5,44 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rejestracja Imion</title>
     <style>
-        /* General Reset and Body Styles */
         body {
             margin: 0;
             font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
             color: #333;
-            background-color: #f4f4f9;
         }
 
-        /* Layout Container */
+        /* Układ strony */
         .container {
             display: flex;
+            flex-direction: row;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
             padding: 10px;
-            flex-wrap: wrap; /* Responsive layout for small screens */
         }
 
-        /* Image Containers */
+        /* Sekcja obrazu */
         .image-container {
             flex: 1;
             display: flex;
             justify-content: center;
-            align-items: center;
             margin: 10px;
         }
 
         .image-container img {
-            width: 100%; /* Adjusts width to fit container */
-            max-width: 300px; /* Limits size on larger screens */
-            height: auto; /* Maintains aspect ratio */
-            object-fit: contain;
+            max-width: 90%;
+            height: auto;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
         }
 
-        /* Commands Section */
+        /* Sekcja komend */
         .commands {
-            flex: 1.5;
+            flex: 2;
             background-color: #fff;
             border-radius: 10px;
             padding: 20px;
@@ -52,30 +49,25 @@
         }
 
         h1 {
-            font-size: 1.8rem;
+            font-size: 2rem;
             margin-bottom: 20px;
-        }
-
-        p {
-            font-size: 1.1rem;
-            margin-bottom: 10px;
+            color: #444;
         }
 
         input, button {
             padding: 10px;
             margin: 10px;
             font-size: 1rem;
-            border: 1px solid #ccc;
+            border: 1px solid #ddd;
             border-radius: 5px;
-            outline: none;
             width: 80%;
+            box-sizing: border-box;
         }
 
         button {
             background-color: #ffdd57;
             color: #333;
             cursor: pointer;
-            transition: 0.3s;
         }
 
         button:hover {
@@ -84,7 +76,6 @@
 
         .status {
             margin-top: 10px;
-            font-size: 1rem;
         }
 
         .taken {
@@ -95,137 +86,142 @@
             color: green;
         }
 
-        /* Summary Section */
         #summary {
             display: none;
-            margin-top: 20px;
             text-align: left;
+            margin-top: 20px;
         }
 
-        #summary ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        #summary ul li {
-            margin-bottom: 5px;
-        }
-
-        /* Responsive Adjustments */
         @media (max-width: 768px) {
             .container {
-                flex-direction: column; /* Stack vertically on small screens */
+                flex-direction: column;
             }
 
             .image-container img {
-                max-width: 200px; /* Smaller images for small screens */
-            }
-
-            input, button {
-                width: 90%;
+                max-width: 70%;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Left Side Image -->
+        <!-- Lewy obrazek -->
         <div class="image-container">
             <img src="left.jpg" alt="Lewy obrazek">
         </div>
 
-        <!-- Commands Section -->
+        <!-- Sekcja komend -->
         <div class="commands">
             <h1>Rejestracja Imion</h1>
-            <p>Podaj swoje imię, aby zacząć rejestrację:</p>
-            <input type="text" id="userNameInput" placeholder="Twoje imię tutaj">
+
+            <p>Podaj swoje imię:</p>
+            <input type="text" id="userNameInput" placeholder="Twoje imię">
             <button onclick="setUserName()">Zatwierdź</button>
             <p id="userStatus" class="status"></p>
 
-            <!-- Name Input -->
             <div id="nameInputSection" style="display:none;">
-                <p>Wpisz imię, aby sprawdzić, czy jest dostępne:</p>
-                <input type="text" id="nameInput" placeholder="Wpisz imię">
-                <button onclick="checkName()">Sprawdź</button>
+                <p>Wpisz imię do rejestracji:</p>
+                <input type="text" id="nameInput" placeholder="Imię">
+                <button onclick="checkName()">Sprawdź i zarejestruj</button>
                 <p id="status" class="status"></p>
                 <button onclick="showSummary()">📋 Pokaż podsumowanie</button>
             </div>
 
-            <!-- Summary Section -->
             <div id="summary">
-                <h3>Podsumowanie</h3>
+                <h3>Podsumowanie:</h3>
                 <ul id="summaryList"></ul>
             </div>
+
+            <!-- Resetowanie -->
+            <h3>Resetowanie</h3>
+            <p>Wprowadź hasło, aby zresetować imiona:</p>
+            <input type="password" id="resetPassword" placeholder="Hasło">
+            <button onclick="resetNames()">Resetuj</button>
+            <p id="resetStatus" class="status"></p>
         </div>
 
-        <!-- Right Side Image -->
+        <!-- Prawy obrazek -->
         <div class="image-container">
             <img src="right.jpg" alt="Prawy obrazek">
         </div>
     </div>
 
     <script>
-        const registeredNames = [];
+        let registeredNames = [];
         const userRegistry = {};
         let currentUser = null;
 
+        // Ustawianie imienia użytkownika
         function setUserName() {
             const userInput = document.getElementById('userNameInput').value.trim();
             const userStatus = document.getElementById('userStatus');
 
             if (userInput === "") {
-                userStatus.innerHTML = "Proszę podaj swoje imię.";
+                userStatus.innerHTML = "Proszę podać swoje imię.";
                 userStatus.className = "taken";
                 return;
             }
 
-            currentUser = userInput.toLowerCase();
+            currentUser = userInput;
             userStatus.innerHTML = `Witaj, ${userInput}! Możesz teraz rejestrować imiona.`;
             userStatus.className = "available";
             document.getElementById('nameInputSection').style.display = "block";
         }
 
+        // Rejestracja imienia
         function checkName() {
             const name = document.getElementById('nameInput').value.trim();
             const status = document.getElementById('status');
 
-            if (!currentUser) {
-                status.innerHTML = "Najpierw podaj swoje imię.";
-                status.className = "taken";
-                return;
-            }
-
             if (name === "") {
-                status.innerHTML = "Proszę podaj imię.";
+                status.innerHTML = "Wprowadź imię.";
                 status.className = "taken";
                 return;
             }
 
             if (registeredNames.includes(name.toLowerCase())) {
-                status.innerHTML = `Imię "${name}" jest już zajęte!`;
+                status.innerHTML = `Imię "${name}" jest już zajęte.`;
                 status.className = "taken";
             } else {
                 registeredNames.push(name.toLowerCase());
                 userRegistry[currentUser] = (userRegistry[currentUser] || 0) + 1;
 
-                status.innerHTML = `Imię "${name}" jest dostępne i zostało zarejestrowane!`;
+                status.innerHTML = `Imię "${name}" zostało zarejestrowane!`;
                 status.className = "available";
                 document.getElementById('nameInput').value = "";
             }
         }
 
+        // Wyświetlanie podsumowania
         function showSummary() {
-            const summary = document.getElementById('summary');
             const summaryList = document.getElementById('summaryList');
+            const summary = document.getElementById('summary');
 
-            summaryList.innerHTML = ""; // Clear old data
+            summaryList.innerHTML = "";
             for (const [user, count] of Object.entries(userRegistry)) {
                 const listItem = document.createElement('li');
                 listItem.textContent = `${user}: ${count} imion`;
                 summaryList.appendChild(listItem);
             }
+            summary.style.display = "block";
+        }
 
-            summary.style.display = "block"; // Show the summary
+        // Resetowanie imion
+        function resetNames() {
+            const password = document.getElementById('resetPassword').value;
+            const resetStatus = document.getElementById('resetStatus');
+
+            if (password === "mamamikiego") {
+                registeredNames = [];
+                for (let user in userRegistry) delete userRegistry[user];
+
+                resetStatus.innerHTML = "Wszystkie imiona zostały zresetowane.";
+                resetStatus.className = "available";
+                document.getElementById('summary').style.display = "none";
+            } else {
+                resetStatus.innerHTML = "Nieprawidłowe hasło.";
+                resetStatus.className = "taken";
+            }
         }
     </script>
 </body>
