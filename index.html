@@ -20,7 +20,8 @@
             justify-content: space-between;
             align-items: center;
             height: 100vh;
-            padding: 20px;
+            padding: 10px;
+            flex-wrap: wrap; /* Make it responsive */
         }
 
         /* Left and Right Image Styles */
@@ -29,11 +30,13 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            max-width: 100%;
+            margin: 10px;
         }
 
         .image-container img {
             max-width: 100%;
-            max-height: 90%;
+            height: auto;
             object-fit: contain;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
@@ -47,6 +50,9 @@
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             text-align: center;
+            margin: 10px;
+            max-width: 600px;
+            flex-grow: 1;
         }
 
         h1 {
@@ -98,6 +104,22 @@
         .available {
             color: green;
         }
+
+        #summary {
+            display: none;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        #summary ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #summary ul li {
+            margin-bottom: 5px;
+        }
+
     </style>
 </head>
 <body>
@@ -131,6 +153,12 @@
                 <input type="password" id="resetPassword" placeholder="Hasło">
                 <button onclick="resetNames()">Resetuj</button>
                 <p id="resetStatus" class="status"></p>
+            </div>
+            
+            <!-- Summary Section -->
+            <div id="summary">
+                <h3>Podsumowanie</h3>
+                <ul id="summaryList"></ul>
             </div>
         </div>
 
@@ -200,7 +228,8 @@
                 listItem.textContent = `${user}: ${count} imion`;
                 summaryList.appendChild(listItem);
             }
-            summary.style.display = "block";
+
+            summary.style.display = "block"; // Show the summary
         }
 
         function resetNames() {
