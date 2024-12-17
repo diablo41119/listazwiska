@@ -8,84 +8,113 @@
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js"></script>
     <style>
         body {
+            margin: 0;
             font-family: Arial, sans-serif;
-            text-align: center;
             background-color: #f9f9f9;
+            color: #333;
+            text-align: center;
         }
 
-        h1 {
-            margin-top: 20px;
+        h1, h2, h3 {
+            color: #444;
         }
 
         input, button {
             padding: 10px;
             margin: 10px;
             font-size: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 80%;
+            max-width: 400px;
+            box-sizing: border-box;
         }
 
         button {
+            background-color: #ffdd57;
+            color: #333;
             cursor: pointer;
         }
 
-        .status {
-            margin: 10px 0;
+        button:hover {
+            background-color: #f39c12;
         }
 
-        .taken { color: red; }
-        .available { color: green; }
+        .status {
+            margin: 10px;
+        }
+
+        .taken {
+            color: red;
+        }
+
+        .available {
+            color: green;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 5px 0;
+        }
     </style>
 </head>
 <body>
     <h1>Rejestracja Imion</h1>
 
-    <!-- Sekcja Wprowadzania -->
-    <input type="text" id="nameInput" placeholder="Podaj imię">
+    <!-- Sekcja wpisywania imienia -->
+    <p>Podaj swoje imię:</p>
+    <input type="text" id="nameInput" placeholder="Imię">
     <button onclick="registerName()">Zarejestruj</button>
     <p id="status" class="status"></p>
 
-    <!-- Wyświetlanie Imion -->
+    <!-- Sekcja podsumowania -->
     <h2>Zarejestrowane Imiona:</h2>
     <ul id="namesList"></ul>
 
-    <!-- Resetowanie Imion -->
+    <!-- Sekcja resetowania -->
     <h3>Resetowanie Imion</h3>
     <input type="password" id="resetPassword" placeholder="Podaj hasło">
-    <button onclick="resetNames()">Resetuj</button>
+    <button onclick="resetNames()">Resetuj Imiona</button>
     <p id="resetStatus" class="status"></p>
 
     <script>
         // Konfiguracja Firebase
         const firebaseConfig = {
-          apiKey: "AIzaSyC1P1F07ebs_WOdUCIVcXGtMlL7QdpTk9o",
-          authDomain: "lista-da466.firebaseapp.com",
-          projectId: "lista-da466",
-          storageBucket: "lista-da466.firebasestorage.app",
-          messagingSenderId: "688719682389",
-          appId: "1:688719682389:web:45d268e47108a26f596ddc",
-          measurementId: "G-G63NG6RBBQ"
+            apiKey: "AIzaSyC1P1F07ebs_WOdUCIVcXGtMlL7QdpTk9o",
+            authDomain: "lista-da466.firebaseapp.com",
+            projectId: "lista-da466",
+            storageBucket: "lista-da466.firebasestorage.app",
+            messagingSenderId: "688719682389",
+            appId: "1:688719682389:web:45d268e47108a26f596ddc",
+            measurementId: "G-G63NG6RBBQ"
         };
         firebase.initializeApp(firebaseConfig);
 
         const database = firebase.database();
         const namesRef = database.ref("registeredNames");
 
-        // Rejestracja Imienia
+        // Funkcja rejestracji imienia
         function registerName() {
-            const nameInput = document.getElementById('nameInput').value.trim();
-            const status = document.getElementById('status');
+            const nameInput = document.getElementById("nameInput").value.trim();
+            const status = document.getElementById("status");
 
             if (nameInput === "") {
-                status.textContent = "Proszę podać imię!";
+                status.textContent = "Proszę podać imię.";
                 status.className = "taken";
                 return;
             }
 
-            // Sprawdzanie i dodawanie do Firebase
+            // Sprawdź, czy imię istnieje
             namesRef.once("value", snapshot => {
                 if (snapshot.hasChild(nameInput.toLowerCase())) {
-                    status.textContent = `Imię "${nameInput}" jest już zajęte!`;
+                    status.textContent = `Imię "${nameInput}" jest już zajęte.`;
                     status.className = "taken";
                 } else {
+                    // Dodaj imię do bazy
                     namesRef.child(nameInput.toLowerCase()).set(true);
                     status.textContent = `Imię "${nameInput}" zostało zarejestrowane!`;
                     status.className = "available";
@@ -94,25 +123,26 @@
             });
         }
 
-        // Wyświetlanie Zarejestrowanych Imion
+        // Funkcja wyświetlania imion
         function displayNames() {
-            const namesList = document.getElementById('namesList');
-            namesList.innerHTML = ""; // Czyść listę
+            const namesList = document.getElementById("namesList");
+            namesList.innerHTML = "";
+
             namesRef.once("value", snapshot => {
                 snapshot.forEach(childSnapshot => {
-                    const li = document.createElement('li');
+                    const li = document.createElement("li");
                     li.textContent = childSnapshot.key;
                     namesList.appendChild(li);
                 });
             });
         }
 
-        // Resetowanie Imion
+        // Funkcja resetowania imion
         function resetNames() {
-            const passwordInput = document.getElementById('resetPassword').value;
-            const resetStatus = document.getElementById('resetStatus');
+            const resetPassword = document.getElementById("resetPassword").value;
+            const resetStatus = document.getElementById("resetStatus");
 
-            if (passwordInput === "mamamikiego") {
+            if (resetPassword === "mamamikiego") {
                 namesRef.remove()
                     .then(() => {
                         resetStatus.textContent = "Wszystkie imiona zostały zresetowane.";
@@ -120,7 +150,7 @@
                         displayNames();
                     })
                     .catch(error => {
-                        resetStatus.textContent = "Błąd podczas resetowania.";
+                        resetStatus.textContent = "Wystąpił błąd podczas resetowania.";
                         resetStatus.className = "taken";
                     });
             } else {
@@ -129,7 +159,7 @@
             }
         }
 
-        // Załaduj imiona przy starcie
+        // Wyświetl imiona po załadowaniu strony
         window.onload = displayNames;
     </script>
 </body>
