@@ -8,34 +8,56 @@
         /* General Styles */
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            color: #fff; /* White text */
+            color: #333;
             margin: 0;
             padding: 0;
-            background-image: url('tlo.jpg'); /* Background image */
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+            background-color: #f4f4f9;
         }
 
-        /* Content Box */
-        .content {
-            background: rgba(0, 0, 0, 0.7); /* Dark overlay for readability */
-            border-radius: 10px;
-            max-width: 500px;
-            margin: 20px auto;
+        /* Layout Container */
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100vh;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Left and Right Image Styles */
+        .image-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Commands Section */
+        .commands {
+            flex: 1.5;
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
         }
 
         h1 {
             font-size: 2rem;
+            color: #333;
             margin-bottom: 20px;
-            color: #ffdd57; /* Yellow for emphasis */
         }
 
         p {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
         }
 
         input, button {
@@ -49,12 +71,15 @@
 
         input {
             width: 80%;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
         }
 
         button {
             background-color: #ffdd57;
             color: #333;
             cursor: pointer;
+            transition: 0.3s;
         }
 
         button:hover {
@@ -62,7 +87,7 @@
         }
 
         .status {
-            font-size: 1.1rem;
+            font-size: 1rem;
             margin-top: 10px;
         }
 
@@ -71,52 +96,47 @@
         }
 
         .available {
-            color: lightgreen;
-        }
-
-        /* Reset Section */
-        #resetSection {
-            margin-top: 20px;
-        }
-
-        #summary {
-            text-align: left;
-            margin-top: 20px;
+            color: green;
         }
     </style>
 </head>
 <body>
-    <div class="content">
-        <h1>Rejestracja Imion</h1>
-
-        <!-- Użytkownik -->
-        <p>Podaj swoje imię, aby zacząć rejestrację:</p>
-        <input type="text" id="userNameInput" placeholder="Twoje imię tutaj">
-        <button onclick="setUserName()">Zatwierdź</button>
-        <p id="userStatus" class="status"></p>
-
-        <!-- Rejestracja Imion -->
-        <div id="nameInputSection" style="display:none;">
-            <p>Wpisz imię, aby sprawdzić, czy jest dostępne:</p>
-            <input type="text" id="nameInput" placeholder="Wpisz imię">
-            <button onclick="checkName()">Sprawdź</button>
-            <p id="status" class="status"></p>
-            <button onclick="showSummary()">📋 Pokaż podsumowanie</button>
+    <div class="container">
+        <!-- Left Side Image -->
+        <div class="image-container">
+            <img src="left.jpg" alt="Lewy obrazek">
         </div>
 
-        <!-- Podsumowanie -->
-        <div id="summary" style="display:none;">
-            <h3>Podsumowanie</h3>
-            <ul id="summaryList"></ul>
+        <!-- Commands Section -->
+        <div class="commands">
+            <h1>Rejestracja Imion</h1>
+            <p>Podaj swoje imię, aby zacząć rejestrację:</p>
+            <input type="text" id="userNameInput" placeholder="Twoje imię tutaj">
+            <button onclick="setUserName()">Zatwierdź</button>
+            <p id="userStatus" class="status"></p>
+
+            <!-- Name Input -->
+            <div id="nameInputSection" style="display:none;">
+                <p>Wpisz imię, aby sprawdzić, czy jest dostępne:</p>
+                <input type="text" id="nameInput" placeholder="Wpisz imię">
+                <button onclick="checkName()">Sprawdź</button>
+                <p id="status" class="status"></p>
+                <button onclick="showSummary()">📋 Pokaż podsumowanie</button>
+            </div>
+
+            <!-- Reset Section -->
+            <div id="resetSection">
+                <h3>Resetowanie</h3>
+                <p>Podaj hasło, aby zresetować wszystkie imiona:</p>
+                <input type="password" id="resetPassword" placeholder="Hasło">
+                <button onclick="resetNames()">Resetuj</button>
+                <p id="resetStatus" class="status"></p>
+            </div>
         </div>
 
-        <!-- Reset Sekcja -->
-        <div id="resetSection">
-            <h3>Resetowanie</h3>
-            <p>Podaj hasło, aby zresetować wszystkie imiona:</p>
-            <input type="password" id="resetPassword" placeholder="Hasło">
-            <button onclick="resetNames()">Resetuj</button>
-            <p id="resetStatus" class="status"></p>
+        <!-- Right Side Image -->
+        <div class="image-container">
+            <img src="right.jpg" alt="Prawy obrazek">
         </div>
     </div>
 
@@ -196,7 +216,6 @@
                 resetStatus.className = "available";
                 document.getElementById('resetPassword').value = "";
                 document.getElementById('nameInputSection').style.display = "none";
-                document.getElementById('summary').style.display = "none";
             } else {
                 resetStatus.innerHTML = "Błędne hasło. Spróbuj ponownie.";
                 resetStatus.className = "taken";
