@@ -17,25 +17,22 @@
         /* Layout Container */
         .container {
             display: flex;
+            flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            height: 100vh;
             padding: 10px;
-            flex-wrap: wrap; /* Make it responsive */
         }
 
-        /* Left and Right Image Styles */
+        /* Image Container */
         .image-container {
-            flex: 1;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            max-width: 100%;
-            margin: 10px;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 10px;
         }
 
         .image-container img {
-            max-width: 100%;
+            width: 45%;
             height: auto;
             object-fit: contain;
             border-radius: 10px;
@@ -44,39 +41,37 @@
 
         /* Commands Section */
         .commands {
-            flex: 1.5;
             background-color: #fff;
             border-radius: 10px;
-            padding: 20px;
+            padding: 15px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             text-align: center;
-            margin: 10px;
-            max-width: 600px;
-            flex-grow: 1;
+            width: 100%;
+            max-width: 400px;
         }
 
         h1 {
-            font-size: 2rem;
+            font-size: 1.8rem;
             color: #333;
-            margin-bottom: 20px;
         }
 
         p {
-            font-size: 1.1rem;
+            font-size: 1rem;
             margin-bottom: 10px;
         }
 
         input, button {
             padding: 10px;
-            margin: 10px;
+            margin: 5px;
             font-size: 1rem;
             border: none;
             border-radius: 5px;
             outline: none;
+            box-sizing: border-box;
         }
 
         input {
-            width: 80%;
+            width: 90%;
             background-color: #f9f9f9;
             border: 1px solid #ccc;
         }
@@ -86,6 +81,7 @@
             color: #333;
             cursor: pointer;
             transition: 0.3s;
+            width: 95%;
         }
 
         button:hover {
@@ -106,30 +102,30 @@
         }
 
         #summary {
-            display: none;
-            margin-top: 20px;
             text-align: left;
+            margin-top: 20px;
+            display: none; /* Domyślnie ukryte */
         }
 
-        #summary ul {
-            list-style: none;
+        ul {
+            list-style-type: none;
             padding: 0;
         }
 
-        #summary ul li {
+        ul li {
             margin-bottom: 5px;
         }
-
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Left Side Image -->
+        <!-- Obrazy po bokach -->
         <div class="image-container">
             <img src="left.jpg" alt="Lewy obrazek">
+            <img src="right.jpg" alt="Prawy obrazek">
         </div>
 
-        <!-- Commands Section -->
+        <!-- Sekcja z komendami -->
         <div class="commands">
             <h1>Rejestracja Imion</h1>
             <p>Podaj swoje imię, aby zacząć rejestrację:</p>
@@ -137,16 +133,20 @@
             <button onclick="setUserName()">Zatwierdź</button>
             <p id="userStatus" class="status"></p>
 
-            <!-- Name Input -->
+            <!-- Rejestracja imion -->
             <div id="nameInputSection" style="display:none;">
                 <p>Wpisz imię, aby sprawdzić, czy jest dostępne:</p>
                 <input type="text" id="nameInput" placeholder="Wpisz imię">
                 <button onclick="checkName()">Sprawdź</button>
                 <p id="status" class="status"></p>
                 <button onclick="showSummary()">📋 Pokaż podsumowanie</button>
+                <div id="summary">
+                    <h3>Podsumowanie</h3>
+                    <ul id="summaryList"></ul>
+                </div>
             </div>
 
-            <!-- Reset Section -->
+            <!-- Resetowanie -->
             <div id="resetSection">
                 <h3>Resetowanie</h3>
                 <p>Podaj hasło, aby zresetować wszystkie imiona:</p>
@@ -154,17 +154,6 @@
                 <button onclick="resetNames()">Resetuj</button>
                 <p id="resetStatus" class="status"></p>
             </div>
-            
-            <!-- Summary Section -->
-            <div id="summary">
-                <h3>Podsumowanie</h3>
-                <ul id="summaryList"></ul>
-            </div>
-        </div>
-
-        <!-- Right Side Image -->
-        <div class="image-container">
-            <img src="right.jpg" alt="Prawy obrazek">
         </div>
     </div>
 
@@ -228,8 +217,7 @@
                 listItem.textContent = `${user}: ${count} imion`;
                 summaryList.appendChild(listItem);
             }
-
-            summary.style.display = "block"; // Show the summary
+            summary.style.display = "block";
         }
 
         function resetNames() {
@@ -243,7 +231,6 @@
 
                 resetStatus.innerHTML = "Wszystkie imiona zostały zresetowane!";
                 resetStatus.className = "available";
-                document.getElementById('resetPassword').value = "";
                 document.getElementById('nameInputSection').style.display = "none";
             } else {
                 resetStatus.innerHTML = "Błędne hasło. Spróbuj ponownie.";
