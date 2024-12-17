@@ -4,225 +4,133 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rejestracja Imion</title>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js"></script>
     <style>
         body {
-            margin: 0;
             font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
-            color: #333;
-        }
-
-        /* Układ strony */
-        .container {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            padding: 10px;
-        }
-
-        /* Sekcja obrazu */
-        .image-container {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            margin: 10px;
-        }
-
-        .image-container img {
-            max-width: 90%;
-            height: auto;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Sekcja komend */
-        .commands {
-            flex: 2;
-            background-color: #fff;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             text-align: center;
-            margin: 10px;
+            background-color: #f9f9f9;
         }
 
         h1 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-            color: #444;
+            margin-top: 20px;
         }
 
         input, button {
             padding: 10px;
             margin: 10px;
             font-size: 1rem;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            width: 80%;
-            box-sizing: border-box;
         }
 
         button {
-            background-color: #ffdd57;
-            color: #333;
             cursor: pointer;
         }
 
-        button:hover {
-            background-color: #f39c12;
-        }
-
         .status {
-            margin-top: 10px;
+            margin: 10px 0;
         }
 
-        .taken {
-            color: red;
-        }
-
-        .available {
-            color: green;
-        }
-
-        #summary {
-            display: none;
-            text-align: left;
-            margin-top: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-            }
-
-            .image-container img {
-                max-width: 70%;
-            }
-        }
+        .taken { color: red; }
+        .available { color: green; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Lewy obrazek -->
-        <div class="image-container">
-            <img src="left.jpg" alt="Lewy obrazek">
-        </div>
+    <h1>Rejestracja Imion</h1>
 
-        <!-- Sekcja komend -->
-        <div class="commands">
-            <h1>Rejestracja Imion</h1>
+    <!-- Sekcja Wprowadzania -->
+    <input type="text" id="nameInput" placeholder="Podaj imię">
+    <button onclick="registerName()">Zarejestruj</button>
+    <p id="status" class="status"></p>
 
-            <p>Podaj swoje imię:</p>
-            <input type="text" id="userNameInput" placeholder="Twoje imię">
-            <button onclick="setUserName()">Zatwierdź</button>
-            <p id="userStatus" class="status"></p>
+    <!-- Wyświetlanie Imion -->
+    <h2>Zarejestrowane Imiona:</h2>
+    <ul id="namesList"></ul>
 
-            <div id="nameInputSection" style="display:none;">
-                <p>Wpisz imię do rejestracji:</p>
-                <input type="text" id="nameInput" placeholder="Imię">
-                <button onclick="checkName()">Sprawdź i zarejestruj</button>
-                <p id="status" class="status"></p>
-                <button onclick="showSummary()">📋 Pokaż podsumowanie</button>
-            </div>
-
-            <div id="summary">
-                <h3>Podsumowanie:</h3>
-                <ul id="summaryList"></ul>
-            </div>
-
-            <!-- Resetowanie -->
-            <h3>Resetowanie</h3>
-            <p>Wprowadź hasło, aby zresetować imiona:</p>
-            <input type="password" id="resetPassword" placeholder="Hasło">
-            <button onclick="resetNames()">Resetuj</button>
-            <p id="resetStatus" class="status"></p>
-        </div>
-
-        <!-- Prawy obrazek -->
-        <div class="image-container">
-            <img src="right.jpg" alt="Prawy obrazek">
-        </div>
-    </div>
+    <!-- Resetowanie Imion -->
+    <h3>Resetowanie Imion</h3>
+    <input type="password" id="resetPassword" placeholder="Podaj hasło">
+    <button onclick="resetNames()">Resetuj</button>
+    <p id="resetStatus" class="status"></p>
 
     <script>
-        let registeredNames = [];
-        const userRegistry = {};
-        let currentUser = null;
+        // Konfiguracja Firebase
+        const firebaseConfig = {
+          apiKey: "AIzaSyC1P1F07ebs_WOdUCIVcXGtMlL7QdpTk9o",
+          authDomain: "lista-da466.firebaseapp.com",
+          projectId: "lista-da466",
+          storageBucket: "lista-da466.firebasestorage.app",
+          messagingSenderId: "688719682389",
+          appId: "1:688719682389:web:45d268e47108a26f596ddc",
+          measurementId: "G-G63NG6RBBQ"
+        };
+        firebase.initializeApp(firebaseConfig);
 
-        // Ustawianie imienia użytkownika
-        function setUserName() {
-            const userInput = document.getElementById('userNameInput').value.trim();
-            const userStatus = document.getElementById('userStatus');
+        const database = firebase.database();
+        const namesRef = database.ref("registeredNames");
 
-            if (userInput === "") {
-                userStatus.innerHTML = "Proszę podać swoje imię.";
-                userStatus.className = "taken";
-                return;
-            }
-
-            currentUser = userInput;
-            userStatus.innerHTML = `Witaj, ${userInput}! Możesz teraz rejestrować imiona.`;
-            userStatus.className = "available";
-            document.getElementById('nameInputSection').style.display = "block";
-        }
-
-        // Rejestracja imienia
-        function checkName() {
-            const name = document.getElementById('nameInput').value.trim();
+        // Rejestracja Imienia
+        function registerName() {
+            const nameInput = document.getElementById('nameInput').value.trim();
             const status = document.getElementById('status');
 
-            if (name === "") {
-                status.innerHTML = "Wprowadź imię.";
+            if (nameInput === "") {
+                status.textContent = "Proszę podać imię!";
                 status.className = "taken";
                 return;
             }
 
-            if (registeredNames.includes(name.toLowerCase())) {
-                status.innerHTML = `Imię "${name}" jest już zajęte.`;
-                status.className = "taken";
-            } else {
-                registeredNames.push(name.toLowerCase());
-                userRegistry[currentUser] = (userRegistry[currentUser] || 0) + 1;
-
-                status.innerHTML = `Imię "${name}" zostało zarejestrowane!`;
-                status.className = "available";
-                document.getElementById('nameInput').value = "";
-            }
+            // Sprawdzanie i dodawanie do Firebase
+            namesRef.once("value", snapshot => {
+                if (snapshot.hasChild(nameInput.toLowerCase())) {
+                    status.textContent = `Imię "${nameInput}" jest już zajęte!`;
+                    status.className = "taken";
+                } else {
+                    namesRef.child(nameInput.toLowerCase()).set(true);
+                    status.textContent = `Imię "${nameInput}" zostało zarejestrowane!`;
+                    status.className = "available";
+                    displayNames();
+                }
+            });
         }
 
-        // Wyświetlanie podsumowania
-        function showSummary() {
-            const summaryList = document.getElementById('summaryList');
-            const summary = document.getElementById('summary');
-
-            summaryList.innerHTML = "";
-            for (const [user, count] of Object.entries(userRegistry)) {
-                const listItem = document.createElement('li');
-                listItem.textContent = `${user}: ${count} imion`;
-                summaryList.appendChild(listItem);
-            }
-            summary.style.display = "block";
+        // Wyświetlanie Zarejestrowanych Imion
+        function displayNames() {
+            const namesList = document.getElementById('namesList');
+            namesList.innerHTML = ""; // Czyść listę
+            namesRef.once("value", snapshot => {
+                snapshot.forEach(childSnapshot => {
+                    const li = document.createElement('li');
+                    li.textContent = childSnapshot.key;
+                    namesList.appendChild(li);
+                });
+            });
         }
 
-        // Resetowanie imion
+        // Resetowanie Imion
         function resetNames() {
-            const password = document.getElementById('resetPassword').value;
+            const passwordInput = document.getElementById('resetPassword').value;
             const resetStatus = document.getElementById('resetStatus');
 
-            if (password === "mamamikiego") {
-                registeredNames = [];
-                for (let user in userRegistry) delete userRegistry[user];
-
-                resetStatus.innerHTML = "Wszystkie imiona zostały zresetowane.";
-                resetStatus.className = "available";
-                document.getElementById('summary').style.display = "none";
+            if (passwordInput === "mamamikiego") {
+                namesRef.remove()
+                    .then(() => {
+                        resetStatus.textContent = "Wszystkie imiona zostały zresetowane.";
+                        resetStatus.className = "available";
+                        displayNames();
+                    })
+                    .catch(error => {
+                        resetStatus.textContent = "Błąd podczas resetowania.";
+                        resetStatus.className = "taken";
+                    });
             } else {
-                resetStatus.innerHTML = "Nieprawidłowe hasło.";
+                resetStatus.textContent = "Nieprawidłowe hasło.";
                 resetStatus.className = "taken";
             }
         }
+
+        // Załaduj imiona przy starcie
+        window.onload = displayNames;
     </script>
 </body>
 </html>
